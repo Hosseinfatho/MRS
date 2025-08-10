@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>From Peaks to Patterns: MRS Visualization Tool</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            background: white;
+            overflow: hidden;
+            border-radius: 0;
+        }
+        
+        .header {
+            display: none; /* Hide the main header */
+        }
+        
+        .content {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 200px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-right: 1px solid #e9ecef;
+            overflow-y: hidden;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .app-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .app-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+            line-height: 1.2;
+        }
+        
+        .app-subtitle {
+            font-size: 10px;
+            color: #7f8c8d;
+            margin: 3px 0 0 0;
+            font-weight: 400;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        
+        .control-group {
+            margin-bottom: 8px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 12px;
+        }
+        
+        .control-group select,
+        .control-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 12px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .plot-type-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .plot-type-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            background: white;
+            color: #2c3e50;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .plot-type-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .plot-type-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px;
+            margin-top: 4px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 2px 5px;
+            border-radius: 3px;
+            border: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 9px;
+        }
+        
+        .checkbox-item:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 4px;
+            width: auto;
+            transform: scale(0.8);
+        }
+        
+        .range-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .range-inputs input {
+            flex: 1;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .plot-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 0;
+            min-height: 100%;
+            padding: 20px;
+        }
+        
+        .plot-image {
+            max-width: 95%;
+            max-height: 95%;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            cursor: grab;
+            transition: transform 0.1s ease;
+        }
+        
+        .plot-image:active {
+            cursor: grabbing;
+        }
+        
+        .zoom-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 1000;
+        }
+        
+        .zoom-btn {
+            width: 35px;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        
+        .zoom-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+        }
+        
+        .zoom-container {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .help-button {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .zoom-controls-fixed {
+            position: fixed;
+            top: 15px;
+            right: 75px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 1001;
+        }
+        
+        .help-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .help-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1002;
+        }
+        
+        .help-content {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        .help-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .help-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #7f8c8d;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        
+        .close-button:hover {
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+        
+        .help-section {
+            margin-bottom: 20px;
+        }
+        
+        .help-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+        }
+        
+        .help-section p {
+            margin: 8px 0;
+            color: #555;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .color-palette-group {
+            margin-bottom: 15px;
+        }
+        
+        .palette-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .palette-option {
+            padding: 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+        }
+        
+        .palette-option.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .palette-option:hover {
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+        
+        .palette-name {
+            font-size: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+        
+        .palette-preview {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+        }
+        
+        .color-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .custom-color-inputs {
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin-top: 8px;
+        }
+        
+        .custom-color-inputs.show {
+            display: grid;
+        }
+        
+        .color-input {
+            width: 100%;
+            height: 30px;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        
+        .color-input::-webkit-color-swatch {
+            border: none;
+            border-radius: 3px;
+        }
+        
+        .color-input::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        
+        .plot-title {
+            display: none; /* Hide the plot title */
+        }
+        
+        .plot-image {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-size: 18px;
+        }
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-panel {
+            background: #e8f4fd;
+            border-left: 3px solid #667eea;
+            padding: 8px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+        
+        .info-panel h3 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+            font-size: 11px;
+        }
+        
+        .info-panel p {
+            margin: 2px 0;
+            color: #555;
+            font-size: 9px;
+            line-height: 1.3;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .plot-container {
+                min-height: 400px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+                max-height: 300px;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+            
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .help-button {
+                width: 45px;
+                height: 45px;
+                font-size: 16px;
+                top: 10px;
+                right: 10px;
+            }
+            
+            .help-content {
+                margin: 20px;
+                max-width: calc(100% - 40px);
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Fixed Zoom Controls -->
+        <div class="zoom-controls-fixed" id="fixedZoomControls">
+            <div class="zoom-btn" onclick="zoomIn()">+</div>
+            <div class="zoom-btn" onclick="zoomOut()">−</div>
+            <div class="zoom-btn" onclick="resetZoom()">⌂</div>
+        </div>
+        
+        <!-- Help Button -->
+        <button class="help-button" onclick="showHelp()">?</button>
+        
+        <!-- Help Modal -->
+        <div class="help-modal" id="helpModal" onclick="closeHelp()">
+            <div class="help-content" onclick="event.stopPropagation()">
+                <div class="help-header">
+                    <h2 class="help-title">Help & Instructions</h2>
+                    <button class="close-button" onclick="closeHelp()">&times;</button>
+                </div>
+                
+                <div class="help-section">
+                    <h3>Instructions:</h3>
+                    <p>1. Select plot type (Circular or Rectangular)</p>
+                    <p>2. Adjust PPM range to focus on specific regions</p>
+                    <p>3. Set saturation range for metabolite highlighting</p>
+                    <p>4. Select metabolites to highlight in the plot</p>
+                    <p>5. Click "Generate Plot" to update visualization</p>
+                    <p>6. Use "Reset View" to restore all defaults</p>
+                </div>
+                
+                <div class="help-section">
+                    <h3>Zoom Controls:</h3>
+                    <p>• Mouse wheel: Zoom in/out</p>
+                    <p>• Drag: Pan when zoomed</p>
+                    <p>• Buttons: +/- zoom, ⌂ reset zoom</p>
+                    <p>• Touch: Pinch to zoom, drag to pan</p>
+                    <p>• Ctrl+R: Fast reset to defaults</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="sidebar">
+                <div class="app-header">
+                    <h1 class="app-title">From Peaks to Patterns</h1>
+                    <p class="app-subtitle">MRS Visualization Tool</p>
+                </div>
+                
+                <div class="control-group">
+                    <label>Plot Type:</label>
+                    <div class="plot-type-buttons">
+                        <button class="plot-type-btn active" onclick="selectPlotType('circular')">Circular</button>
+                        <button class="plot-type-btn" onclick="selectPlotType('rectangular')">Rectangular</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>PPM Range:</label>
+                    <div class="range-inputs">
+                        <input type="number" id="ppmMin" placeholder="Min" value="-20" step="0.1">
+                        <span>to</span>
+                        <input type="number" id="ppmMax" placeholder="Max" value="20" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Saturation Range (ppm):</label>
+                    <input type="number" id="saturationRange" placeholder="0.15" value="0.15" step="0.05" min="0.05" max="1.0">
+                </div>
+                
+                <div class="color-palette-group">
+                    <label>Color Palette:</label>
+                    <div class="palette-options">
+                        <div class="palette-option selected" onclick="selectPalette('viridis')">
+                            <div class="palette-name">Viridis</div>
+                            <div class="palette-preview">
+                                <div class="color-dot" style="background: #440154"></div>
+                                <div class="color-dot" style="background: #31688e"></div>
+                                <div class="color-dot" style="background: #35b779"></div>
+                                <div class="color-dot" style="background: #fde725"></div>
+                            </div>
+                        </div>
+                        <div class="palette-option" onclick="selectPalette('plasma')">
+                            <div class="palette-name">Plasma</div>
+                            <div class="palette-preview">
+                                <div class="color-dot" style="background: #0d0887"></div>
+                                <div class="color-dot" style="background: #7e03a8"></div>
+                                <div class="color-dot" style="background: #cc4678"></div>
+                                <div class="color-dot" style="background: #f89441"></div>
+                            </div>
+                        </div>
+                        <div class="palette-option" onclick="selectPalette('colorbrewer')">
+                            <div class="palette-name">ColorBrewer</div>
+                            <div class="palette-preview">
+                                <div class="color-dot" style="background: #2166ac"></div>
+                                <div class="color-dot" style="background: #762a83"></div>
+                                <div class="color-dot" style="background: #5aae61"></div>
+                                <div class="color-dot" style="background: #e08214"></div>
+                            </div>
+                        </div>
+                        <div class="palette-option" onclick="selectPalette('rainbow')">
+                            <div class="palette-name">Rainbow</div>
+                            <div class="palette-preview">
+                                <div class="color-dot" style="background: #ff0000"></div>
+                                <div class="color-dot" style="background: #00ff00"></div>
+                                <div class="color-dot" style="background: #0000ff"></div>
+                                <div class="color-dot" style="background: #ffff00"></div>
+                            </div>
+                        </div>
+                        <div class="palette-option" onclick="selectPalette('nature')">
+                            <div class="palette-name">Nature</div>
+                            <div class="palette-preview">
+                                <div class="color-dot" style="background: #1f77b4"></div>
+                                <div class="color-dot" style="background: #ff7f0e"></div>
+                                <div class="color-dot" style="background: #2ca02c"></div>
+                                <div class="color-dot" style="background: #d62728"></div>
+                            </div>
+                        </div>
+                        <div class="palette-option" onclick="selectPalette('custom')">
+                            <div class="palette-name">Custom</div>
+                            <div class="palette-preview">
+                                <div class="color-dot" style="background: #3288bd"></div>
+                                <div class="color-dot" style="background: #66c2a5"></div>
+                                <div class="color-dot" style="background: #fdae61"></div>
+                                <div class="color-dot" style="background: #f46d43"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="custom-color-inputs" id="customColorInputs">
+                        <input type="color" class="color-input" id="color1" value="#3288bd">
+                        <input type="color" class="color-input" id="color2" value="#66c2a5">
+                        <input type="color" class="color-input" id="color3" value="#fdae61">
+                        <input type="color" class="color-input" id="color4" value="#f46d43">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Select Metabolites:</label>
+                    <div class="checkbox-group" id="metaboliteCheckboxes">
+                        <!-- Metabolites will be loaded here -->
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="generatePlot()">Generate Plot</button>
+                
+                <button class="btn" onclick="fastResetView()" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); margin-top: 5px;" id="resetViewBtn" disabled>Reset View</button>
+            </div>
+            
+            <div class="main-content">
+                <div class="loading" id="loading">Generating plot...</div>
+                
+                <div class="plot-container" id="plotContainer">
+                    <div class="zoom-container" id="zoomContainer">
+                        <div class="zoom-controls" id="zoomControls" style="display: none;">
+                            <div class="zoom-btn" onclick="zoomIn()">+</div>
+                            <div class="zoom-btn" onclick="zoomOut()">−</div>
+                            <div class="zoom-btn" onclick="resetZoom()">⌂</div>
+                        </div>
+                        <div style="text-align: center; color: #666;">
+                            <h3>MRS Visualization</h3>
+                            <p>Select plot type, configure settings and click "Generate Plot"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let metabolites = {};
+        let currentPlotType = 'circular';
+        let currentZoom = 1;
+        let currentPanX = 0;
+        let currentPanY = 0;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let selectedPalette = 'viridis';
+        
+        // Color palettes for scientific publications
+        const colorPalettes = {
+            viridis: ['#440154', '#31688e', '#35b779', '#fde725'],
+            plasma: ['#0d0887', '#7e03a8', '#cc4678', '#f89441'],
+            colorbrewer: ['#2166ac', '#762a83', '#5aae61', '#e08214'],
+            rainbow: ['#ff0000', '#00ff00', '#0000ff', '#ffff00'],
+            nature: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'],
+            custom: ['#3288bd', '#66c2a5', '#fdae61', '#f46d43']
+        };
+        
+        // Load available metabolites on page load
+        window.onload = function() {
+            // Hide fixed zoom controls initially
+            document.getElementById('fixedZoomControls').style.display = 'none';
+            fetch('/get_metabolites')
+                .then(response => response.json())
+                .then(data => {
+                    metabolites = data;
+                    populateMetaboliteCheckboxes();
+                })
+                .catch(error => console.error('Error loading metabolites:', error));
+            
+            // Initialize color inputs
+            initializeColorInputs();
+            
+            // Add keyboard shortcut for reset view (Ctrl+R or Cmd+R)
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                    e.preventDefault();
+                    const resetBtn = document.getElementById('resetViewBtn');
+                    if (resetBtn && !resetBtn.disabled) {
+                        fastResetView();
+                    }
+                }
+            });
+        };
+        
+        function selectPlotType(plotType) {
+            currentPlotType = plotType;
+            
+            // Update button states
+            document.querySelectorAll('.plot-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Clear current plot and reset zoom
+            resetZoom();
+            // Hide fixed zoom controls when no plot is shown
+            document.getElementById('fixedZoomControls').style.display = 'none';
+            document.getElementById('plotContainer').innerHTML = `
+                <div class="zoom-container" id="zoomContainer">
+                    <div style="text-align: center; color: #666;">
+                        <h3>${plotType.charAt(0).toUpperCase() + plotType.slice(1)} Visualization</h3>
+                        <p>Configure settings and click "Generate Plot"</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function populateMetaboliteCheckboxes() {
+            const container = document.getElementById('metaboliteCheckboxes');
+            container.innerHTML = '';
+            
+            Object.entries(metabolites).forEach(([name, ppm]) => {
+                const div = document.createElement('div');
+                div.className = 'checkbox-item';
+                div.innerHTML = `
+                    <input type="checkbox" id="${name}" value="${name}" checked>
+                    <label for="${name}">${name} (${ppm} ppm)</label>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        function generatePlot() {
+            const ppmMin = parseFloat(document.getElementById('ppmMin').value);
+            const ppmMax = parseFloat(document.getElementById('ppmMax').value);
+            const saturationRange = parseFloat(document.getElementById('saturationRange').value);
+            
+            // Get selected metabolites
+            const selectedMetabolites = [];
+            document.querySelectorAll('#metaboliteCheckboxes input[type="checkbox"]:checked').forEach(checkbox => {
+                selectedMetabolites.push(checkbox.value);
+            });
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('plotContainer').innerHTML = '';
+            
+            // Generate single plot
+            generateSinglePlot(currentPlotType, selectedMetabolites, [ppmMin, ppmMax], saturationRange)
+                .then(plotData => {
+                    const plotContainer = document.getElementById('plotContainer');
+                    plotContainer.innerHTML = `
+                        <div class="zoom-container" id="zoomContainer">
+                            <img src="data:image/png;base64,${plotData}" 
+                                 class="plot-image" 
+                                 id="plotImage"
+                                 alt="${currentPlotType.charAt(0).toUpperCase() + currentPlotType.slice(1)} Plot">
+                        </div>
+                    `;
+                    
+                    // Initialize zoom functionality
+                    initializeZoom();
+                    
+                    // Show fixed zoom controls
+                    document.getElementById('fixedZoomControls').style.display = 'flex';
+                    
+                    // Enable reset view button
+                    const resetBtn = document.getElementById('resetViewBtn');
+                    if (resetBtn) {
+                        resetBtn.disabled = false;
+                        resetBtn.style.opacity = '1';
+                    }
+                    
+                    document.getElementById('loading').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error generating plot:', error);
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('plotContainer').innerHTML = `
+                        <div class="zoom-container" id="zoomContainer">
+                            <div style="text-align: center; color: #e74c3c;">
+                                <h3>Error</h3>
+                                <p>Failed to generate plot. Please try again.</p>
+                            </div>
+                        </div>
+                    `;
+                });
+        }
+        
+        function generateSinglePlot(plotType, metabolites, ppmRange, saturationRange) {
+            const currentColors = colorPalettes[selectedPalette];
+            const requestData = {
+                plot_type: plotType,
+                metabolites: metabolites,
+                ppm_range: ppmRange,
+                saturation_range: saturationRange,
+                color_palette: currentColors
+            };
+            
+            return fetch('/generate_plot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => data.plot_data);
+        }
+        
+        // Auto-generate plot when PPM range changes
+        document.getElementById('ppmMin').addEventListener('change', function() {
+            if (document.querySelector('.plot-image')) {
+                generatePlot();
+            }
+        });
+        
+        document.getElementById('ppmMax').addEventListener('change', function() {
+            if (document.querySelector('.plot-image')) {
+                generatePlot();
+            }
+        });
+        
+        // Auto-generate plot when saturation range changes
+        document.getElementById('saturationRange').addEventListener('change', function() {
+            if (document.querySelector('.plot-image')) {
+                generatePlot();
+            }
+        });
+        
+        // Auto-generate plot when metabolites selection changes
+        document.getElementById('metaboliteCheckboxes').addEventListener('change', function() {
+            if (document.querySelector('.plot-image')) {
+                generatePlot();
+            }
+        });
+        
+        // Color palette functions
+        function selectPalette(paletteName) {
+            selectedPalette = paletteName;
+            
+            // Update UI selection
+            document.querySelectorAll('.palette-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.closest('.palette-option').classList.add('selected');
+            
+            // Show/hide custom color inputs
+            const customInputs = document.getElementById('customColorInputs');
+            if (paletteName === 'custom') {
+                customInputs.classList.add('show');
+            } else {
+                customInputs.classList.remove('show');
+            }
+            
+            // Update custom colors if needed
+            if (paletteName === 'custom') {
+                updateCustomColors();
+            }
+            
+            // Regenerate plot if one exists
+            if (document.querySelector('.plot-image')) {
+                generatePlot();
+            }
+        }
+        
+        function updateCustomColors() {
+            const colors = [];
+            for (let i = 1; i <= 4; i++) {
+                const colorInput = document.getElementById(`color${i}`);
+                if (colorInput) {
+                    colors.push(colorInput.value);
+                }
+            }
+            colorPalettes.custom = colors;
+        }
+        
+        // Add event listeners for custom color inputs
+        function initializeColorInputs() {
+            for (let i = 1; i <= 4; i++) {
+                const colorInput = document.getElementById(`color${i}`);
+                if (colorInput) {
+                    colorInput.addEventListener('change', function() {
+                        updateCustomColors();
+                        if (selectedPalette === 'custom' && document.querySelector('.plot-image')) {
+                            generatePlot();
+                        }
+                    });
+                }
+            }
+        }
+        
+        // Help modal functions
+        function showHelp() {
+            const modal = document.getElementById('helpModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // Prevent background scroll
+            }
+        }
+        
+        function closeHelp() {
+            const modal = document.getElementById('helpModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Restore background scroll
+            }
+        }
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeHelp();
+            }
+        });
+        
+        // Zoom functionality
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom * 1.2, 5); // Maximum 5x zoom
+            applyTransform();
+        }
+        
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom / 1.2, 0.5); // Minimum 0.5x zoom
+            applyTransform();
+        }
+        
+        function resetZoom() {
+            currentZoom = 1;
+            currentPanX = 0;
+            currentPanY = 0;
+            applyTransform();
+        }
+        
+        function fastResetView() {
+            // Reset zoom and pan
+            resetZoom();
+            
+            // Reset all form values to defaults
+            document.getElementById('ppmMin').value = '-20';
+            document.getElementById('ppmMax').value = '20';
+            document.getElementById('saturationRange').value = '0.15';
+            
+            // Select all metabolites
+            document.querySelectorAll('#metaboliteCheckboxes input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            
+            // Reset to circular plot
+            currentPlotType = 'circular';
+            document.querySelectorAll('.plot-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector('.plot-type-btn').classList.add('active');
+            
+            // Hide fixed zoom controls
+            document.getElementById('fixedZoomControls').style.display = 'none';
+            
+            // Regenerate plot with default settings
+            generatePlot();
+        }
+        
+        function applyTransform() {
+            const plotImage = document.getElementById('plotImage');
+            if (plotImage) {
+                plotImage.style.transform = `scale(${currentZoom}) translate(${currentPanX}px, ${currentPanY}px)`;
+            }
+        }
+        
+        function initializeZoom() {
+            const plotImage = document.getElementById('plotImage');
+            const zoomContainer = document.getElementById('zoomContainer');
+            
+            if (!plotImage || !zoomContainer) return;
+            
+            // Reset zoom state
+            currentZoom = 1;
+            currentPanX = 0;
+            currentPanY = 0;
+            
+            // Mouse wheel zoom
+            zoomContainer.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                
+                const rect = zoomContainer.getBoundingClientRect();
+                const centerX = e.clientX - rect.left - rect.width / 2;
+                const centerY = e.clientY - rect.top - rect.height / 2;
+                
+                const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+                const newZoom = Math.min(Math.max(currentZoom * zoomFactor, 0.5), 5);
+                
+                if (newZoom !== currentZoom) {
+                    // Adjust pan to zoom towards mouse position
+                    const zoomRatio = newZoom / currentZoom;
+                    currentPanX = centerX - (centerX - currentPanX) * zoomRatio;
+                    currentPanY = centerY - (centerY - currentPanY) * zoomRatio;
+                    currentZoom = newZoom;
+                    applyTransform();
+                }
+            });
+            
+            // Mouse drag to pan
+            plotImage.addEventListener('mousedown', function(e) {
+                if (currentZoom > 1) {
+                    isDragging = true;
+                    dragStartX = e.clientX - currentPanX;
+                    dragStartY = e.clientY - currentPanY;
+                    plotImage.style.cursor = 'grabbing';
+                }
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (isDragging) {
+                    currentPanX = e.clientX - dragStartX;
+                    currentPanY = e.clientY - dragStartY;
+                    applyTransform();
+                }
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    const plotImage = document.getElementById('plotImage');
+                    if (plotImage) {
+                        plotImage.style.cursor = currentZoom > 1 ? 'grab' : 'default';
+                    }
+                }
+            });
+            
+            // Touch events for mobile
+            let lastTouchDistance = 0;
+            let lastTouchCenter = { x: 0, y: 0 };
+            
+            zoomContainer.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    lastTouchDistance = Math.hypot(
+                        touch2.clientX - touch1.clientX,
+                        touch2.clientY - touch1.clientY
+                    );
+                    lastTouchCenter = {
+                        x: (touch1.clientX + touch2.clientX) / 2,
+                        y: (touch1.clientY + touch2.clientY) / 2
+                    };
+                } else if (e.touches.length === 1 && currentZoom > 1) {
+                    isDragging = true;
+                    const touch = e.touches[0];
+                    dragStartX = touch.clientX - currentPanX;
+                    dragStartY = touch.clientY - currentPanY;
+                }
+            });
+            
+            zoomContainer.addEventListener('touchmove', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    const touchDistance = Math.hypot(
+                        touch2.clientX - touch1.clientX,
+                        touch2.clientY - touch1.clientY
+                    );
+                    
+                    if (lastTouchDistance > 0) {
+                        const zoomFactor = touchDistance / lastTouchDistance;
+                        const newZoom = Math.min(Math.max(currentZoom * zoomFactor, 0.5), 5);
+                        
+                        if (newZoom !== currentZoom) {
+                            const rect = zoomContainer.getBoundingClientRect();
+                            const centerX = lastTouchCenter.x - rect.left - rect.width / 2;
+                            const centerY = lastTouchCenter.y - rect.top - rect.height / 2;
+                            
+                            const zoomRatio = newZoom / currentZoom;
+                            currentPanX = centerX - (centerX - currentPanX) * zoomRatio;
+                            currentPanY = centerY - (centerY - currentPanY) * zoomRatio;
+                            currentZoom = newZoom;
+                            applyTransform();
+                        }
+                    }
+                    
+                    lastTouchDistance = touchDistance;
+                } else if (e.touches.length === 1 && isDragging) {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    currentPanX = touch.clientX - dragStartX;
+                    currentPanY = touch.clientY - dragStartY;
+                    applyTransform();
+                }
+            });
+            
+            zoomContainer.addEventListener('touchend', function(e) {
+                if (e.touches.length === 0) {
+                    isDragging = false;
+                    lastTouchDistance = 0;
+                }
+            });
+            
+            // Set initial cursor
+            plotImage.style.cursor = currentZoom > 1 ? 'grab' : 'default';
+        }
+    </script>
+</body>
+</html> 
