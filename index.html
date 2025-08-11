@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ابزار تجسم MRS: از قله‌ها تا الگوها</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            background: white;
+            overflow: hidden;
+            border-radius: 0;
+        }
+        
+        .header {
+            display: none;
+        }
+        
+        .content {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-right: 1px solid #e9ecef;
+            overflow-y: auto;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .app-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .app-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+            line-height: 1.2;
+        }
+        
+        .app-subtitle {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin: 5px 0 0 0;
+            font-weight: 400;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .control-group select,
+        .control-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .plot-container {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .plot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .plot-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .plot-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .plot-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+        
+        .plot-btn:hover {
+            background: #5a6268;
+        }
+        
+        .plot-btn.active {
+            background: #667eea;
+        }
+        
+        #plotArea {
+            flex: 1;
+            min-height: 400px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+        
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .info-panel {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .info-title {
+            font-weight: 600;
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        
+        .info-text {
+            font-size: 13px;
+            color: #424242;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 300px;
+            }
+            
+            .main-content {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <div class="sidebar">
+                <div class="app-header">
+                    <h1 class="app-title">ابزار تجسم MRS</h1>
+                    <p class="app-subtitle">از قله‌ها تا الگوها</p>
+                </div>
+                
+                <div class="info-panel">
+                    <div class="info-title">راهنمای استفاده:</div>
+                    <div class="info-text">
+                        این ابزار برای تجسم داده‌های طیف‌سنجی رزونانس مغناطیسی (MRS) طراحی شده است. 
+                        می‌توانید نوع نمودار، محدوده PPM و متابولیت‌های مورد نظر را انتخاب کنید.
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="plotType">نوع نمودار:</label>
+                    <select id="plotType">
+                        <option value="circular">نمودار دایره‌ای</option>
+                        <option value="rectangular">نمودار مستطیلی</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="ppmRange">محدوده PPM:</label>
+                    <select id="ppmRange">
+                        <option value="-20,20">کامل (-20 تا 20)</option>
+                        <option value="-5,5">مرکزی (-5 تا 5)</option>
+                        <option value="-10,10">گسترده (-10 تا 10)</option>
+                        <option value="-2,2">محدود (-2 تا 2)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="saturationRange">محدوده اشباع:</label>
+                    <input type="range" id="saturationRange" min="0.05" max="0.3" step="0.01" value="0.15">
+                    <span id="saturationValue">0.15</span>
+                </div>
+                
+                <div class="control-group">
+                    <label for="colorPalette">پالت رنگی:</label>
+                    <select id="colorPalette">
+                        <option value="viridis">Viridis</option>
+                        <option value="plasma">Plasma</option>
+                        <option value="inferno">Inferno</option>
+                        <option value="magma">Magma</option>
+                        <option value="cividis">Cividis</option>
+                    </select>
+                </div>
+                
+                <button class="btn" onclick="generatePlot()">تولید نمودار</button>
+                
+                <div class="loading" id="loading">
+                    در حال تولید نمودار...
+                </div>
+                
+                <div class="error" id="error"></div>
+            </div>
+            
+            <div class="main-content">
+                <div class="plot-container">
+                    <div class="plot-header">
+                        <h2 class="plot-title">نمودار MRS</h2>
+                        <div class="plot-controls">
+                            <button class="plot-btn active" onclick="downloadPlot('png')">دانلود PNG</button>
+                            <button class="plot-btn" onclick="downloadPlot('svg')">دانلود SVG</button>
+                            <button class="plot-btn" onclick="downloadPlot('pdf')">دانلود PDF</button>
+                        </div>
+                    </div>
+                    <div id="plotArea">
+                        <div style="text-align: center; padding: 50px; color: #6c757d;">
+                            برای شروع، تنظیمات را انتخاب کرده و روی "تولید نمودار" کلیک کنید
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for demonstration
+        const sampleData = {
+            spectra: [
+                [0.1, 0.2, 0.3, 0.4, 0.5, 0.4, 0.3, 0.2, 0.1],
+                [0.2, 0.3, 0.4, 0.5, 0.6, 0.5, 0.4, 0.3, 0.2],
+                [0.3, 0.4, 0.5, 0.6, 0.7, 0.6, 0.5, 0.4, 0.3],
+                [0.4, 0.5, 0.6, 0.7, 0.8, 0.7, 0.6, 0.5, 0.4]
+            ],
+            chemical_shifts: [-10, -5, 0, 5, 10, 15, 20, 25, 30]
+        };
+
+        // Update saturation range display
+        document.getElementById('saturationRange').addEventListener('input', function(e) {
+            document.getElementById('saturationValue').textContent = e.target.value;
+        });
+
+        function generatePlot() {
+            const plotType = document.getElementById('plotType').value;
+            const ppmRange = document.getElementById('ppmRange').value;
+            const saturationRange = parseFloat(document.getElementById('saturationRange').value);
+            const colorPalette = document.getElementById('colorPalette').value;
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            
+            // Simulate plot generation
+            setTimeout(() => {
+                createSamplePlot(plotType, ppmRange, saturationRange, colorPalette);
+                document.getElementById('loading').style.display = 'none';
+            }, 1000);
+        }
+
+        function createSamplePlot(plotType, ppmRange, saturationRange, colorPalette) {
+            const plotArea = document.getElementById('plotArea');
+            
+            if (plotType === 'circular') {
+                createCircularPlot(plotArea, ppmRange, saturationRange, colorPalette);
+            } else {
+                createRectangularPlot(plotArea, ppmRange, saturationRange, colorPalette);
+            }
+        }
+
+        function createCircularPlot(container, ppmRange, saturationRange, colorPalette) {
+            const [minPPM, maxPPM] = ppmRange.split(',').map(Number);
+            const colors = getColorPalette(colorPalette, 4);
+            
+            // Create sample data for circular plot
+            const traces = [];
+            const centerX = 0, centerY = 0, radius = 1;
+            
+            for (let i = 0; i < 4; i++) {
+                const angles = [];
+                const radii = [];
+                const intensities = [];
+                
+                for (let j = 0; j < 100; j++) {
+                    const angle = (j / 100) * 2 * Math.PI;
+                    const ppm = minPPM + (j / 100) * (maxPPM - minPPM);
+                    const intensity = Math.sin(ppm * 0.5 + i) * Math.exp(-ppm * ppm / 50) + 0.5;
+                    
+                    angles.push(angle);
+                    radii.push(radius + intensity * 0.3);
+                    intensities.push(intensity);
+                }
+                
+                traces.push({
+                    type: 'scatterpolar',
+                    r: radii,
+                    theta: angles.map(a => a * 180 / Math.PI),
+                    mode: 'lines',
+                    name: `طیف ${i + 1}`,
+                    line: { color: colors[i], width: 2 },
+                    fill: 'toself',
+                    fillcolor: colors[i] + '20'
+                });
+            }
+            
+            const layout = {
+                polar: {
+                    radialaxis: {
+                        visible: true,
+                        range: [0, 1.5]
+                    },
+                    angularaxis: {
+                        visible: true,
+                        ticktext: ['-20', '-10', '0', '10', '20'],
+                        tickvals: [0, 72, 144, 216, 288]
+                    }
+                },
+                title: {
+                    text: 'نمودار دایره‌ای MRS',
+                    font: { size: 18 }
+                },
+                showlegend: true,
+                legend: {
+                    x: 1.1,
+                    y: 0.5
+                }
+            };
+            
+            Plotly.newPlot(container, traces, layout, {responsive: true});
+        }
+
+        function createRectangularPlot(container, ppmRange, saturationRange, colorPalette) {
+            const [minPPM, maxPPM] = ppmRange.split(',').map(Number);
+            const colors = getColorPalette(colorPalette, 4);
+            
+            const traces = [];
+            const ppmValues = [];
+            
+            for (let i = minPPM; i <= maxPPM; i += 0.5) {
+                ppmValues.push(i);
+            }
+            
+            for (let i = 0; i < 4; i++) {
+                const intensities = ppmValues.map(ppm => {
+                    return Math.sin(ppm * 0.5 + i) * Math.exp(-ppm * ppm / 50) + 0.5;
+                });
+                
+                traces.push({
+                    x: ppmValues,
+                    y: intensities,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: `طیف ${i + 1}`,
+                    line: { color: colors[i], width: 2 }
+                });
+            }
+            
+            const layout = {
+                title: {
+                    text: 'نمودار مستطیلی MRS',
+                    font: { size: 18 }
+                },
+                xaxis: {
+                    title: 'PPM',
+                    range: [minPPM, maxPPM]
+                },
+                yaxis: {
+                    title: 'شدت'
+                },
+                showlegend: true,
+                legend: {
+                    x: 1.02,
+                    y: 0.5
+                }
+            };
+            
+            Plotly.newPlot(container, traces, layout, {responsive: true});
+        }
+
+        function getColorPalette(palette, count) {
+            const palettes = {
+                viridis: ['#440154', '#31688e', '#35b779', '#fde725'],
+                plasma: ['#0d0887', '#7e03a8', '#cc4778', '#f89441'],
+                inferno: ['#000004', '#1b0c41', '#4a0c6b', '#781c6d'],
+                magma: ['#000004', '#180f3e', '#451077', '#721f81'],
+                cividis: ['#00224e', '#123570', '#3b496c', '#575a6c']
+            };
+            return palettes[palette] || palettes.viridis;
+        }
+
+        function downloadPlot(format) {
+            const plotArea = document.getElementById('plotArea');
+            Plotly.downloadImage(plotArea, {
+                format: format,
+                filename: `mrs_plot_${Date.now()}`,
+                height: 600,
+                width: 800
+            });
+        }
+
+        // Generate initial plot
+        window.onload = function() {
+            generatePlot();
+        };
+    </script>
+</body>
+</html>
