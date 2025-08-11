@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صفحه یافت نشد - ابزار تجسم MRS</title>
+    <title>Page Not Found - MRS Visualization Tool</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -103,20 +103,20 @@
 <body>
     <div class="error-container">
         <h1 class="error-code">404</h1>
-        <h2 class="error-title">صفحه یافت نشد</h2>
+        <h2 class="error-title">Page Not Found</h2>
         <p class="error-message">
-            متأسفانه صفحه‌ای که به دنبال آن هستید وجود ندارد یا به آدرس دیگری منتقل شده است.
+            Sorry, the page you're looking for doesn't exist or has been moved to another location.
         </p>
         
-        <a href="/" class="home-button">بازگشت به صفحه اصلی</a>
+        <a href="/" class="home-button">Return to Home Page</a>
         
         <div class="suggestions">
-            <h3>پیشنهادات:</h3>
+            <h3>Suggestions:</h3>
             <ul>
-                <li>• بررسی کنید که آدرس را درست وارد کرده باشید</li>
-                <li>• از منوی اصلی استفاده کنید</li>
-                <li>• <a href="/">به صفحه اصلی بروید</a></li>
-                <li>• <a href="https://github.com/your-username/your-repo">مخزن GitHub را بررسی کنید</a></li>
+                <li>• Check that you entered the correct URL</li>
+                <li>• Use the main navigation menu</li>
+                <li>• <a href="/">Go to the home page</a></li>
+                <li>• <a href="https://github.com/your-username/your-repo">Check the GitHub repository</a></li>
             </ul>
         </div>
     </div>
@@ -139,7 +139,7 @@
         
         const timer = setInterval(() => {
             countdown--;
-            countdownElement.textContent = `بازگشت خودکار در ${countdown} ثانیه`;
+            countdownElement.textContent = `Auto-redirect in ${countdown} seconds`;
             
             if (countdown <= 0) {
                 clearInterval(timer);

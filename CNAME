@@ -1,10 +1,10 @@
-# برای استفاده از دامنه سفارشی، نام دامنه خود را در اینجا قرار دهید
-# مثال: yourdomain.com
+# For custom domain usage, enter your domain name here
+# Example: yourdomain.com
 # 
-# نکات مهم:
-# 1. این فایل را فقط در صورت داشتن دامنه سفارشی استفاده کنید
-# 2. نام دامنه را بدون http:// یا https:// وارد کنید
-# 3. DNS دامنه باید به درستی تنظیم شده باشد
-# 4. برای اطلاعات بیشتر به مستندات GitHub Pages مراجعه کنید
+# Important notes:
+# 1. Only use this file if you have a custom domain
+# 2. Enter domain name without http:// or https://
+# 3. DNS settings must be properly configured
+# 4. For more information, refer to GitHub Pages documentation
 #
-# اگر دامنه سفارشی ندارید، این فایل را حذف کنید
+# If you don't have a custom domain, delete this file

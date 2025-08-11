@@ -1,119 +1,119 @@
-# ابزار تجسم MRS - GitHub Pages
+# MRS Visualization Tool - GitHub Pages
 
-این پروژه یک ابزار تجسم تعاملی برای داده‌های طیف‌سنجی رزونانس مغناطیسی (MRS) است که به صورت استاتیک روی GitHub Pages اجرا می‌شود.
+This project is an interactive visualization tool for Magnetic Resonance Spectroscopy (MRS) data that runs as a static application on GitHub Pages.
 
-## ویژگی‌ها
+## Features
 
-- **نمودار دایره‌ای**: نمایش داده‌های MRS در قالب نمودار قطبی
-- **نمودار مستطیلی**: نمایش سنتی داده‌های MRS
-- **تنظیمات تعاملی**: امکان تغییر محدوده PPM، پالت رنگی و پارامترهای دیگر
-- **دانلود نمودار**: امکان دانلود نمودارها در فرمت‌های PNG، SVG و PDF
-- **رابط کاربری فارسی**: طراحی شده برای کاربران فارسی‌زبان
+- **Circular Plot**: Display MRS data in polar format
+- **Rectangular Plot**: Traditional MRS data visualization
+- **Interactive Controls**: Change PPM range, color palette, and other parameters
+- **Download Plots**: Export plots in PNG, SVG, and PDF formats
+- **English Interface**: Designed for English-speaking users
 
-## نحوه استفاده
+## How to Use
 
-### مشاهده آنلاین
-اپلیکیشن به صورت آنلاین در آدرس زیر قابل دسترسی است:
+### View Online
+The application is available online at:
 ```
 https://[username].github.io/[repository-name]/
 ```
 
-### اجرای محلی
-1. فایل `index.html` را دانلود کنید
-2. آن را در مرورگر خود باز کنید
-3. تنظیمات مورد نظر را انتخاب کنید
-4. روی "تولید نمودار" کلیک کنید
+### Run Locally
+1. Download the `index.html` file
+2. Open it in your browser
+3. Select your desired settings
+4. Click "Generate Plot"
 
-## تنظیمات GitHub Pages
+## GitHub Pages Setup
 
-### مرحله 1: ایجاد مخزن جدید
-1. در GitHub یک مخزن جدید ایجاد کنید
-2. نام آن را `[username].github.io` قرار دهید (برای صفحات شخصی)
-3. یا نام دلخواه انتخاب کنید (برای صفحات پروژه)
+### Step 1: Create New Repository
+1. Create a new repository on GitHub
+2. Name it `[username].github.io` (for personal pages)
+3. Or choose any name (for project pages)
 
-### مرحله 2: آپلود فایل‌ها
-1. فایل `index.html` را به مخزن آپلود کنید
-2. فایل `README.md` را آپلود کنید
+### Step 2: Upload Files
+1. Upload the `index.html` file to the repository
+2. Upload the `README.md` file
 
-### مرحله 3: فعال‌سازی GitHub Pages
-1. به Settings > Pages بروید
-2. Source را روی "Deploy from a branch" تنظیم کنید
-3. Branch را روی "main" و folder را روی "/ (root)" قرار دهید
-4. Save را کلیک کنید
+### Step 3: Enable GitHub Pages
+1. Go to Settings > Pages
+2. Set Source to "Deploy from a branch"
+3. Set Branch to "main" and folder to "/ (root)"
+4. Click Save
 
-### مرحله 4: انتظار برای استقرار
-- GitHub Pages معمولاً در عرض چند دقیقه فعال می‌شود
-- آدرس سایت در بخش Pages نمایش داده می‌شود
+### Step 4: Wait for Deployment
+- GitHub Pages typically activates within a few minutes
+- The site URL will be displayed in the Pages section
 
-## ساختار فایل‌ها
+## File Structure
 
 ```
 repository/
-├── index.html          # فایل اصلی اپلیکیشن
-├── README.md           # توضیحات پروژه
-└── README_gh_pages.md  # این فایل
+├── index.html          # Main application file
+├── README.md           # Project description
+└── README_gh_pages.md  # This file
 ```
 
-## تکنولوژی‌های استفاده شده
+## Technologies Used
 
-- **HTML5**: ساختار اصلی
-- **CSS3**: طراحی و استایل‌دهی
-- **JavaScript**: منطق تعاملی
-- **Plotly.js**: کتابخانه نمودار
-- **PapaParse**: پردازش داده‌های CSV
+- **HTML5**: Main structure
+- **CSS3**: Styling and design
+- **JavaScript**: Interactive logic
+- **Plotly.js**: Chart library
+- **PapaParse**: CSV data processing
 
-## ویژگی‌های فنی
+## Technical Features
 
-### نمودار دایره‌ای
-- استفاده از `scatterpolar` در Plotly
-- نمایش داده‌ها در قالب قطبی
-- امکان تغییر محدوده زاویه‌ای
+### Circular Plot
+- Uses `scatterpolar` in Plotly
+- Displays data in polar format
+- Adjustable angular range
 
-### نمودار مستطیلی
-- استفاده از `scatter` در Plotly
-- نمایش سنتی داده‌های MRS
-- محورهای قابل تنظیم
+### Rectangular Plot
+- Uses `scatter` in Plotly
+- Traditional MRS data display
+- Configurable axes
 
-### پالت‌های رنگی
-- Viridis (پیش‌فرض)
+### Color Palettes
+- Viridis (default)
 - Plasma
 - Inferno
 - Magma
 - Cividis
 
-## عیب‌یابی
+## Troubleshooting
 
-### مشکلات رایج
+### Common Issues
 
-1. **نمودار نمایش داده نمی‌شود**
-   - اطمینان حاصل کنید که اینترنت متصل است
-   - CDN های Plotly و PapaParse باید در دسترس باشند
+1. **Plot Not Displaying**
+   - Ensure internet connection is active
+   - Plotly and PapaParse CDNs must be accessible
 
-2. **فونت فارسی نمایش داده نمی‌شود**
-   - مرورگر باید از فونت‌های فارسی پشتیبانی کند
-   - فونت‌های سیستم عامل بررسی شوند
+2. **Font Display Issues**
+   - Browser must support system fonts
+   - Check system font settings
 
-3. **دانلود نمودار کار نمی‌کند**
-   - Plotly.js باید به درستی بارگذاری شده باشد
-   - مرورگر باید از دانلود فایل پشتیبانی کند
+3. **Download Not Working**
+   - Plotly.js must be properly loaded
+   - Browser must support file downloads
 
-## مشارکت
+## Contributing
 
-برای مشارکت در بهبود این پروژه:
+To contribute to improving this project:
 
-1. Fork کنید
-2. Branch جدید ایجاد کنید
-3. تغییرات را اعمال کنید
-4. Pull Request ارسال کنید
+1. Fork the repository
+2. Create a new branch
+3. Make your changes
+4. Submit a Pull Request
 
-## مجوز
+## License
 
-این پروژه تحت مجوز MIT منتشر شده است.
+This project is released under the MIT License.
 
-## تماس
+## Contact
 
-برای سوالات و پیشنهادات، لطفاً Issue ایجاد کنید یا با ایمیل تماس بگیرید.
+For questions and suggestions, please create an Issue or contact via email.
 
 ---
 
-**نکته**: این نسخه استاتیک برای نمایش نمونه طراحی شده است. برای استفاده با داده‌های واقعی، نسخه Flask اصلی را استفاده کنید.
+**Note**: This static version is designed for demonstration purposes. For use with real data, use the original Flask version.
